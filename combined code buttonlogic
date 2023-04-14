@@ -34,7 +34,7 @@ void setup() {
 }
 // button 1 is minus also mode 1
 // button 2 is confirm
-// button 3 is plus  also mode 2
+// button 3 is plus  also mode 3
 void loop() {
   
   Serial.println(modcheck);
