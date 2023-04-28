@@ -4,11 +4,19 @@
 #include <LiquidCrystal_I2C.h>
 #include <Arduino.h>
 #include <ESP32Encoder.h>
+#include <WiFi.h>
+#include <FirebaseESP32.h>
 
 #define BIN_1 26
 #define BIN_2 25
+// the wifi and the Firebase link stuff
+#define WIFI_SSID "hrm553"
+#define WIFI_PASSWORD "becoming553"
+#define FIREBASE_HOST "feedbackcoffee-a7f8c-default-rtdb.firebaseio.com" // Your Firebase Realtime Database URL
+#define FIREBASE_AUTH "your_firebase_secret" // Your Firebase database secret
 
 ESP32Encoder encoder;
+FirebaseData firebaseData;
 
 unsigned long curtime;
 static unsigned long intertime = 0;
@@ -77,6 +85,11 @@ int defaultrot = 3; // lets say 3 is the default for 2table spoon
 int totalrot; // total rotation mulipled default * cupnum
 float TS = 2;
 int grindready =0;
+int cupsBrewed = 0;
+int caffeineIntake = 0;
+int dataready;
+int cup;
+int caffeine;
 
 void setup() {
   // Initialize serial communication at 9600 baud rate
@@ -109,6 +122,21 @@ void setup() {
   lcd.init();
   // Turn on LCD backlight
   lcd.backlight();
+  
+  
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  Serial.print("Connecting to Wi-Fi");
+  while (WiFi.status() != WL_CONNECTED) {
+    Serial.print(".");
+    delay(300);
+  }
+  Serial.println();
+  Serial.print("Connected with IP: ");
+  Serial.println(WiFi.localIP());
+  Serial.println();
+
+  Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
+  
 }
 // button 1 is minus also mode 1
 // button 2 is confirm
@@ -389,10 +417,34 @@ void loop() {
       grindready = 0; 
       laststep = 1;
       dp_last = dp;
+      dataready = 1;
+      cupsBrewed = cupsBrewed + cupnum;
+      caffeineIntake = caffeinIntake + cupnum * TS /2 * 120;
     }
     
 
     delay(900);
+  }
+  
+  if (dataready == 1){
+      if (Firebase.setInt(firebaseData, "/cupsBrewed", cupsBrewed)) {
+        Serial.println("Cups Brewed data was sent to Firebase");
+        cup = 1;
+      } else {
+        Serial.println("Failed to send Cups Brewed data to Firebase");
+        Serial.println("Error: " + firebaseData.errorReason());
+      }
+
+      if (Firebase.setInt(firebaseData, "/caffeineIntake", caffeineIntake)) {
+        Serial.println("Caffeine Intake data was sent to Firebase");
+        caffein = 1;
+      } else {
+        Serial.println("Failed to send Caffeine Intake data to Firebase");
+        Serial.println("Error: " + firebaseData.errorReason());
+      }
+  }
+  if ((cup ==1 ) & (caffein = 1 )){
+    dataready = 0;
   }
   
 }
