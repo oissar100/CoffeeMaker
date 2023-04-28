@@ -443,8 +443,9 @@ void loop() {
         Serial.println("Error: " + firebaseData.errorReason());
       }
   }
-  if ((cup ==1 ) & (caffein = 1 )){
+  if ((cup ==1 ) && (caffein = 1 )){
     dataready = 0;
+    
   }
   
 }
