@@ -94,12 +94,6 @@ int caffeine;
 void setup() {
   // Initialize serial communication at 9600 baud rate
   Serial.begin(115200);
-  ESP32PWM :: allocateTimer(0);
-  ESP32PWM :: allocateTimer(1);
-  ESP32PWM :: allocateTimer(2);
-  ESP32PWM :: allocateTimer(3);
-  myservo.setPeriodHertz(50);
-  myservo.attach(servoPin, 400,2400);
 
   ESP32Encoder::useInternalWeakPullResistors = UP; // Enable the weak pull up resistors
   encoder.attachHalfQuad(27, 33); // Attache pins for use as encoder pins
@@ -112,6 +106,10 @@ void setup() {
   /* attach the channel to the GPIO to be controlled */
   ledcAttachPin(BIN_1, ledChannel_1);
   ledcAttachPin(BIN_2, ledChannel_2);
+  
+  myservo.setPeriodHertz(50);
+  myservo.attach(servoPin, 400,2400);
+
 
   // Set the button pins as inputs with pullup resistor enabled
   pinMode(BUTTON1_PIN, INPUT_PULLUP);
